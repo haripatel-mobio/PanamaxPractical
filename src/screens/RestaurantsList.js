@@ -13,6 +13,9 @@ class RestaurantsList extends BaseScreen {
 
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount() {
     this.getRestaurantsList()
   }
 
@@ -30,7 +33,7 @@ class RestaurantsList extends BaseScreen {
       (response, error) => {
         this.loaderView(false)
         if (isValueNull(error)) {
-          console.log(`response: ${JSON.stringify(response)}`)
+          // console.log(`response: ${JSON.stringify(response)}`)
           //reviews
           //phone
           //image

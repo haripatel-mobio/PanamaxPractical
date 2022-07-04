@@ -39,23 +39,31 @@ class RestaurantAddressMapView extends BaseScreen {
   }
 
   componentDidMount() {
-    let tSelectedRestaurantData = '';
+    // ? get restaurant data and current coordinates form parameters
+    let tSelectedRestaurantData = {};
+    let tCurrentLocation = {}
     if (this.props.route.params != undefined) {
       if (this.props.route.params.selectedRestaurant != undefined) {
         tSelectedRestaurantData = this.props.route.params.selectedRestaurant;
       }
+
+      if (this.props.route.params.currentLocation != undefined) {
+        tCurrentLocation = this.props.route.params.currentLocation;
+      }
     }
 
-    if (!isValueNull(tSelectedRestaurantData)) {
+    if (!isValueNull(tSelectedRestaurantData) && !isValueNull(tCurrentLocation)) {
       this.setState({
         selectedOrderRestaurantData: tSelectedRestaurantData,
+        currentLocation: tCurrentLocation
       }, () => {
-        this.getLocation()
+        // this.getLocation()
+        this.getRestaurantLocationInCoordinates(this.state.selectedOrderRestaurantData.address)
       });
     }
   }
 
-  getLocation = () => {
+  /* getLocation = () => {
     this.loaderView(true)
     getCurrentLocation(position => {
       // this.loaderView(false)
@@ -65,17 +73,22 @@ class RestaurantAddressMapView extends BaseScreen {
 
         console.log('latitude : ' + lat + ', longitude : ' + long);
         this.setState({currentLocation:{latitude: parseFloat(lat), longitude: parseFloat(long)}}, () => {
-          this.getRestaurantLocationInCoordinates()
+          this.getRestaurantLocationInCoordinates(this.state.selectedOrderRestaurantData.address)
         });
       } else {
+        // if (position == null) {
+        //   this.props.navigation.goBack()
+        // }
         this.loaderView(false)
       }
     });
-  }
+  } */
 
+  // ? Call google API for get coordinates from address to show marker
   getRestaurantLocationInCoordinates = (address) => {
+    this.loaderView(true)
     let url = WebServiceURL.GET_COORDINATE
-    url = url.replace('[address]', this.state.selectedOrderRestaurantData.address)
+    url = url.replace('[address]', address)
     console.log(`getRestaurantLocationInCoordinates.url: ${url}`)
     API_CALL(
       'GET', 
@@ -84,8 +97,8 @@ class RestaurantAddressMapView extends BaseScreen {
       this.props.isConnected,
       (response, error) => {
         this.loaderView(false)
+        // console.log(`getRestaurantLocationInCoordinates.response: ${JSON.stringify(response)}`)
         if (isValueNull(error)) {
-          console.log(`getRestaurantLocationInCoordinates.response: ${JSON.stringify(response)}`)
           if (response.status == "OK" && response.results.length != 0) {
             let resultData = response.results[0]
             console.log(`resultData: ${JSON.stringify(resultData)}`)
@@ -98,10 +111,10 @@ class RestaurantAddressMapView extends BaseScreen {
                 }, 500)
               })
             } else {
-              //showToast()
+              showToast()
             }
-          } else {
-            //showToast()
+          } else if (response.status == "REQUEST_DENIED") {
+            showToast(response.error_message)
           }
         } else {
           showToast(error)
@@ -134,6 +147,8 @@ class RestaurantAddressMapView extends BaseScreen {
               <CustomCallout restaurantData={this.state.selectedOrderRestaurantData} />
             </Callout>
           </Marker> : null }
+          // ? Show directions between two coordinates
+          {this.state.restaurantLocation.latitude != 0.0 && this.state.restaurantLocation.longitude != 0.0 ? 
           <MapViewDirections
             origin={this.state.currentLocation}
             // destination={this.state.restaurantLocation}
@@ -154,13 +169,14 @@ class RestaurantAddressMapView extends BaseScreen {
                 }
               }, 500)
             }}
-          />
+          /> : null }
         </MapView>
         <Loader showLoader={this.state.showLoader} />
       </View>
     );
   }
 
+  // ? According to coordinates move and adjust camera position
   fitPadding = () => {
     this.map.current?.fitToCoordinates([this.state.currentLocation, this.state.restaurantLocation], {
       edgePadding: { top: 24, right: 24, bottom: 24, left: 24 },

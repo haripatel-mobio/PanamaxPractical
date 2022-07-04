@@ -10,6 +10,7 @@ import { RESTAURANT } from '../helper/database/schema/SchemaRestaurants';
 import { Card, Image, Rating } from 'react-native-elements';
 import { RFPercentage } from "react-native-responsive-fontsize";
 import { COLORS } from '../helper/Color';
+import { getCurrentLocation } from '../helper/GetLocation';
 
 let mapIconOriginalWidth = 52
 let mapIconOriginalHeight = 72
@@ -32,6 +33,7 @@ class RestaurantsList extends BaseScreen {
   }
 
   componentDidMount() {
+    // ? Check already data store on local DB if not then get from APIs
     let tRestaurantsList = this.getRestaurantListFromDB()
     if (tRestaurantsList.length == 0) {
       this.getRestaurantsList()
@@ -42,6 +44,7 @@ class RestaurantsList extends BaseScreen {
     }
   }
 
+  // ? Pagination using current page value and per page item need to load
   getRestaurantListFromDB = () => {
     let { currentPage, perPage } = this.state
     let startIndex = (currentPage * perPage) - perPage
@@ -54,6 +57,7 @@ class RestaurantsList extends BaseScreen {
     this.setState({ showLoader: isShowLoader })
   }
 
+  // ? check if already load last item then stop load more
   checkIsLoadLastObject = () => {
     let length = this.realmHelper.getAllObjectsCount(RESTAURANT)
     console.log(`length: ${length}`)
@@ -62,6 +66,7 @@ class RestaurantsList extends BaseScreen {
     }
   }
 
+  // ? API calling for get restaurant data
   getRestaurantsList = () => {
     this.loaderView(true)
     API_CALL(
@@ -77,8 +82,6 @@ class RestaurantsList extends BaseScreen {
           if (response.Result.length != 0) {
             let result = response.Result
             this.realmHelper.insertMultipleSchemaData(RESTAURANT, result, (status, error) => {
-              /* console.log(`status: ${status}`)
-              console.log(`error: ${error}`) */
               if (status) {
                 let tRestaurantsList = this.getRestaurantListFromDB()
                 this.setState({ restaurantsList: tRestaurantsList }, () => {
@@ -101,17 +104,12 @@ class RestaurantsList extends BaseScreen {
       <View style={styles.rootView}>
         <FlatList
           keyExtractor={(item, index) => item._id}
-          data={
-            this.state.restaurantsList
-          }
-          renderItem={
-            this.renderRestaurantListView
-          }
+          data={this.state.restaurantsList}
+          renderItem={this.renderRestaurantListView}
           horizontal={false}
           showsVerticalScrollIndicator={false}
           ListFooterComponent={this.renderFooter}
           onEndReached={() => {
-            console.log(`onEndReached`)
             if (!this.state.refreshing && !this.state.isLoadLastItem) {
               this.setState({ refreshing: true, currentPage: this.state.currentPage+1 })
               setTimeout(() => {
@@ -129,9 +127,9 @@ class RestaurantsList extends BaseScreen {
     );
   }
 
+  // ? load more view
   renderFooter = () => {
     return (
-      //Footer View with Load More button
       <View style={styles.loadMoreBtn}>
         {this.state.refreshing && !this.state.isLoadLastItem ? (
           <ActivityIndicator style={{marginLeft: 8}} />
@@ -141,15 +139,7 @@ class RestaurantsList extends BaseScreen {
     );
   };
 
-
-  refreshData = async () => {
-    console.log(`refreshing`)
-    this.setState({ refreshing: true })
-    setTimeout(() => {
-      this.setState({ refreshing: false })
-    }, 500)
-  }
-
+  // ? Items UI
   renderRestaurantListView = ({item, index}) => {
     return (
       <Card containerStyle={styles.cardView}>
@@ -185,9 +175,7 @@ class RestaurantsList extends BaseScreen {
           <TouchableOpacity
             style={styles.mapView}
             onPress={() => {
-              this.props.navigation.navigate('map_view', {
-                selectedRestaurant: item,
-              })
+              this.getLocation(item)
             }}
           >
             <Image
@@ -200,6 +188,24 @@ class RestaurantsList extends BaseScreen {
         </TouchableOpacity>
       </Card>
     )
+  }
+
+  // ? Before move to map view check if enable location or not and get coordinates
+  getLocation = (item) => {
+    this.loaderView(true)
+    getCurrentLocation(position => {
+      this.loaderView(false)
+      if (position != null) {
+        let lat = position.coords.latitude.toFixed(6);
+        let long = position.coords.longitude.toFixed(6);
+        let currentLocation = {latitude: parseFloat(lat), longitude: parseFloat(long)}
+        // * open map view
+        this.props.navigation.navigate('map_view', {
+          selectedRestaurant: item,
+          currentLocation: currentLocation
+        })
+      }
+    });
   }
 }
 
@@ -260,10 +266,4 @@ const mapStateToProps = state => ({
   isConnected: state.auth.isConnected
 });
 
-const mapDispatchToProps = dispatch => {
-  return {
-  
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(RestaurantsList);
+export default connect(mapStateToProps)(RestaurantsList);

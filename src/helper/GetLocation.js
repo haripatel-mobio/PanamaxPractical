@@ -106,7 +106,7 @@ const showPermissionAlert = () => {
       {
         text: 'SETTINGS',
         onPress: () => {
-          /* if (isIOS) {
+          if (isIOS) {
             Linking.canOpenURL('app-settings:')
               .then(supported => {
                 if (!supported) {
@@ -118,7 +118,7 @@ const showPermissionAlert = () => {
               .catch(err => console.error('An error occurred', err));
           } else {
             AndroidOpenSettings.appDetailsSettings();
-          } */
+          }
         },
       },
     ],

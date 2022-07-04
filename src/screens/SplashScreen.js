@@ -8,23 +8,14 @@ class SplashScreen extends BaseScreen {
 
   constructor(props) {
     super(props);
-    this.getData();
   }
 
   componentDidMount() {
+    // ? 3 second timer and open home screen
     setTimeout(() => {
-      // console.log(`SplashScreen.next`);
       this.props.navigation.replace('restaurants_list');
     }, 3000);
   }
-
-  getData = async () => {
-    try {
-      
-    } catch (e) {
-      console.log(`SplashScreen.ERROR: ${e}`);
-    }
-  };
 
   render() {
     return (
@@ -49,15 +40,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   }
 });
-
-const mapStateToProps = state => ({
-  
-});
-
-const mapDispatchToProps = dispatch => {
-  return {
-    
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(SplashScreen);
+export default SplashScreen;

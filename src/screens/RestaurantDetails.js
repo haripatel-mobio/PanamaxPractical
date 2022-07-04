@@ -28,19 +28,17 @@ class RestaurantDetails extends BaseScreen {
       this.setState({
         selectedOrderRestaurantData: tSelectedRestaurantData,
       }, () => {
+        // ? Check condition for slider because currently string value get from API
         let tDataSource = []
         if (Array.isArray(this.state.selectedOrderRestaurantData.image)) {
-          console.log(`this.state.selectedOrderRestaurantData.image.array`)
           for (let i = 0; i < this.state.selectedOrderRestaurantData.image.length; i++) {
             let imageData = this.state.selectedOrderRestaurantData.image[i];
             let imageURL = {url: imageData}
             tDataSource.push(imageURL)
           }
         } else if (typeof(this.state.selectedOrderRestaurantData.image) == 'string') {
-          console.log(`this.state.selectedOrderRestaurantData.image.string`)
           let imageURL = {url: this.state.selectedOrderRestaurantData.image}
           tDataSource.push(imageURL)
-          // tDataSource.push(imageURL)
         }
         this.setState({ sliderDataSource: tDataSource })
       });

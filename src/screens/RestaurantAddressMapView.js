@@ -147,7 +147,6 @@ class RestaurantAddressMapView extends BaseScreen {
               <CustomCallout restaurantData={this.state.selectedOrderRestaurantData} />
             </Callout>
           </Marker> : null }
-          // ? Show directions between two coordinates
           {this.state.restaurantLocation.latitude != 0.0 && this.state.restaurantLocation.longitude != 0.0 ? 
           <MapViewDirections
             origin={this.state.currentLocation}

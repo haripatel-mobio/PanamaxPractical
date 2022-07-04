@@ -2,7 +2,11 @@
 Practical Test
 
 ## ScreenShots
-![]()
+![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/resraurant_list.png)
+
+![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/resraurant_list.png)
+
+![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/restaurant_details.png)
 
 ## Screens
 1. Splash Screen

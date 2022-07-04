@@ -92,8 +92,14 @@ class RealmHelper {
     }
   }
 
-  getAllObject(schema) {
-    return this.getRealmInstance().objects(schema);
+  getAllObject(schema, startIndex, endIndex) {
+    console.log(`startIndex: ${startIndex}`)
+    console.log(`endIndex: ${endIndex}`)
+    return this.getRealmInstance().objects(schema).slice(startIndex, endIndex);
+  }
+
+  getAllObjectsCount(schema) {
+    return this.getRealmInstance().objects(schema).length;
   }
 
   getSingleRecord(schema, primaryField, primaryFieldValue) {

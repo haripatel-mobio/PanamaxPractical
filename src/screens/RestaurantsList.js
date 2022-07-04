@@ -1,5 +1,5 @@
-import React from 'react';
-import {Text, StyleSheet, View, FlatList, ActivityIndicator, TouchableOpacity} from 'react-native';
+import React, { Children } from 'react';
+import {Text, StyleSheet, View, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl} from 'react-native';
 import {connect} from 'react-redux';
 import { API_CALL } from '../helper/network/CallingWebService';
 import BaseScreen, { isValueNull, showToast } from './BaseScreen';
@@ -19,7 +19,11 @@ let newMapIconHeight = (mapIconOriginalHeight * mapIconWidth) / mapIconOriginalW
 class RestaurantsList extends BaseScreen {
   state = {
     showLoader: false,
-    restaurantsList: []
+    restaurantsList: [],
+    currentPage: 1,
+    perPage: 10,
+    refreshing: false,
+    isLoadLastItem: false
   };
 
   constructor(props) {
@@ -28,18 +32,34 @@ class RestaurantsList extends BaseScreen {
   }
 
   componentDidMount() {
-    let tRestaurantsList = this.realmHelper.getAllObject(RESTAURANT)
+    let tRestaurantsList = this.getRestaurantListFromDB()
     if (tRestaurantsList.length == 0) {
       this.getRestaurantsList()
     } else {
       this.setState({ restaurantsList: tRestaurantsList }, () => {
-        //console.log(`componentDidMount.restaurantsList. ${JSON.stringify(this.state.restaurantsList)}`)
+        this.checkIsLoadLastObject()
       })
     }
   }
 
+  getRestaurantListFromDB = () => {
+    let { currentPage, perPage } = this.state
+    let startIndex = (currentPage * perPage) - perPage
+    let endIndex = currentPage * perPage
+    let tRestaurantsList = this.realmHelper.getAllObject(RESTAURANT, startIndex, endIndex)
+    return tRestaurantsList
+  }
+
   loaderView = (isShowLoader) => {
     this.setState({ showLoader: isShowLoader })
+  }
+
+  checkIsLoadLastObject = () => {
+    let length = this.realmHelper.getAllObjectsCount(RESTAURANT)
+    console.log(`length: ${length}`)
+    if (this.state.restaurantsList.length >= length) {
+      this.setState({ isLoadLastItem: true })
+    }
   }
 
   getRestaurantsList = () => {
@@ -60,9 +80,9 @@ class RestaurantsList extends BaseScreen {
               /* console.log(`status: ${status}`)
               console.log(`error: ${error}`) */
               if (status) {
-                let tRestaurantsList = this.realmHelper.getAllObject(RESTAURANT)
+                let tRestaurantsList = this.getRestaurantListFromDB()
                 this.setState({ restaurantsList: tRestaurantsList }, () => {
-                  //console.log(`getRestaurantsList.restaurantsList. ${JSON.stringify(this.state.restaurantsList)}`)
+                  this.checkIsLoadLastObject()
                 })
               } else {
                 showToast(error)
@@ -89,10 +109,45 @@ class RestaurantsList extends BaseScreen {
           }
           horizontal={false}
           showsVerticalScrollIndicator={false}
+          ListFooterComponent={this.renderFooter}
+          onEndReached={() => {
+            console.log(`onEndReached`)
+            if (!this.state.refreshing && !this.state.isLoadLastItem) {
+              this.setState({ refreshing: true, currentPage: this.state.currentPage+1 })
+              setTimeout(() => {
+                let tRestaurantsList = this.getRestaurantListFromDB()
+                this.setState({ refreshing: false, restaurantsList: [...this.state.restaurantsList, ...tRestaurantsList] }, ()=> {
+                  this.checkIsLoadLastObject()
+                })
+              }, 500)
+            }
+          }}
+          onEndReachedThreshold={0.2}
         />
         <Loader showLoader={this.state.showLoader} />
       </View>
     );
+  }
+
+  renderFooter = () => {
+    return (
+      //Footer View with Load More button
+      <View style={styles.loadMoreBtn}>
+        {this.state.refreshing && !this.state.isLoadLastItem ? (
+          <ActivityIndicator style={{marginLeft: 8}} />
+        ) : null}
+        {this.state.isLoadLastItem ? <Text>No more restaurant at the moment</Text> : null}
+      </View>
+    );
+  };
+
+
+  refreshData = async () => {
+    console.log(`refreshing`)
+    this.setState({ refreshing: true })
+    setTimeout(() => {
+      this.setState({ refreshing: false })
+    }, 500)
   }
 
   renderRestaurantListView = ({item, index}) => {
@@ -191,6 +246,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignContent: 'center',
     backgroundColor: 'transparent'
+  },
+  loadMoreBtn: {
+    padding: 12,
+    borderRadius: 4,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });
 

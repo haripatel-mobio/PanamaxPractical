@@ -2,7 +2,7 @@
 Practical Test
 
 ## Branch
-Latesh code pushed into development branch
+Latest code pushed into development branch
 
 ## Screens
 >`Splash Screen`

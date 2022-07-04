@@ -30,4 +30,6 @@ Latest code pushed into development branch
 >- For testing i will use my google api key and it is working.
 
 ## ScreenShots
-![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/resraurant_list.png) | ![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/restaurant_details.png) | ![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/map_view.png)
+![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/resraurant_list.png)
+![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/restaurant_details.png)
+![](https://github.com/haripatel-mobio/PanamaxPractical/blob/development/screenshots/map_view.png)

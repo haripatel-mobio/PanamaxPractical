@@ -1,5 +1,5 @@
 import {Component} from 'react';
-import {StatusBar} from 'react-native';
+import {Linking, StatusBar} from 'react-native';
 import {Dimensions, Platform} from 'react-native';
 import Toast from 'react-native-root-toast';
 
@@ -26,8 +26,21 @@ export const showToast = (
     keyboardAvoiding: false,
     position: -100,
     opacity: 1,
+    duration: Toast.durations.LONG
   });
   return toast;
+};
+
+export const dialCall = (phone) => {
+  let phoneNumber = '';
+
+  if (isAndroid) {
+    phoneNumber = `tel:${phone}`;
+  } else {
+    phoneNumber = `telprompt:${phone}`;
+  }
+
+  Linking.openURL(phoneNumber);
 };
 
 // ! from this a/c 

@@ -18,7 +18,7 @@ export const API_CALL = async (method, endpoint, param, isConnected, response) =
 }
 
 function checkError(response) {
-  console.log(`checkError > json: ${JSON.stringify(response)}`);
+  // console.log(`checkError > json: ${JSON.stringify(response)}`);
   if (
     response.status >= 200 &&
     response.status <= 500
@@ -32,12 +32,8 @@ function checkError(response) {
 function returnResponse(jsonResponse, response) {
   if (isValueNull(jsonResponse)) {
     return returnError(response)
-  }
-  // if (json.status == true) {
-  if (!isValueNull(jsonResponse.Result)) {
-    return response(jsonResponse, null)
   } else {
-    return returnError(response)
+    return response(jsonResponse, null)
   }
 }
 

@@ -12,6 +12,8 @@ import NetInfo from "@react-native-community/netinfo";
 import SplashScreen from '../screens/SplashScreen';
 import RestaurantsList from '../screens/RestaurantsList';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import RestaurantDetails from '../screens/RestaurantDetails';
+import RestaurantAddressMapView from '../screens/RestaurantAddressMapView';
 
 const Stack = createStackNavigator();
 
@@ -48,6 +50,16 @@ class AppNavigation extends BaseScreen {
             name="restaurants_list"
             component={RestaurantsList}
           />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="restaurant_details"
+            component={RestaurantDetails}
+          />
+          <Stack.Screen
+            options={{ title: 'Map View' }}
+            name="map_view"
+            component={RestaurantAddressMapView}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -56,7 +68,7 @@ class AppNavigation extends BaseScreen {
   screenDefaultOption = navigation => {
     return {
       headerShown: true,
-      gestureEnabled: false,
+      gestureEnabled: true,
       headerTintColor: COLORS.white,
       headerStyle: {
         backgroundColor: COLORS.primary

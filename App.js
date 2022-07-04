@@ -16,12 +16,15 @@ import { RootSiblingParent } from 'react-native-root-siblings';
 import { Provider } from 'react-redux';
 import AppNavigation from './src/navigation/AppNavigation';
 import store from './src/store';
+import RealmHelper from './src/helper/database/RealmHelper';
+
+let realmHelper
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    /* realmHelper = RealmHelper.getInstance();
-    realmHelper.creteSchema(); */
+    realmHelper = RealmHelper.getInstance();
+    realmHelper.createSchema();
   }
 
   render() {
